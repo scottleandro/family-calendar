@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id               String       @id @default(uuid())
+  title            String
+  description      String?
+  start            DateTime     @db.Timestamptz(6)
+  end              DateTime     @db.Timestamptz(6)
+  allDay           Boolean      @default(false)
+  timeZone         String       @default("America/New_York")
+  rrule            String?
+  exdates          DateTime[]   @db.Timestamptz(6)
+  durationMinutes  Int?
+  durationDays     Int?
+  createdBy        String
+  createdAt        DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime     @updatedAt @db.Timestamptz(6)
+  tags             EventTag[]
+
+  @@index([createdBy])
+}
+
+model Tag {
+  id        String     @id @default(uuid())
+  name      String
+  color     String
+  userId    String
+  createdAt DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime   @updatedAt @db.Timestamptz(6)
+  events    EventTag[]
+
+  @@unique([userId, name])
+}
+
+model EventTag {
+  eventId String
+  tagId   String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, tagId])
+}
