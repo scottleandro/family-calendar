@@ -1,11 +1,11 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export const dynamic = 'force-dynamic'
 
-export default function ChangePasswordPage() {
+function ChangePasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const isExpired = searchParams.get('expired') === 'true'
@@ -85,7 +85,7 @@ export default function ChangePasswordPage() {
         router.replace('/')
       }, 2000)
 
-    } catch (error) {
+    } catch {
       setError('An unexpected error occurred')
       setLoading(false)
     }
@@ -157,5 +157,13 @@ export default function ChangePasswordPage() {
         </button>
       </form>
     </div>
+  )
+}
+
+export default function ChangePasswordPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center p-6">Loading...</div>}>
+      <ChangePasswordContent />
+    </Suspense>
   )
 }
