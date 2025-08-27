@@ -18,7 +18,7 @@ export default function SignUpPage() {
     const supabase = createSupabaseBrowserClient()
     if (!supabase) { setLoading(false); setError('Supabase is not configured'); return }
     
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({ email, password })
     
     if (error) {
       setError(error.message)
@@ -26,25 +26,17 @@ export default function SignUpPage() {
       return
     }
 
-    // Create user profile with password expiration
-    try {
-      const profileResponse = await fetch('/api/auth/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      if (!profileResponse.ok) {
-        console.error('Failed to create user profile')
-      }
-    } catch (error) {
-      console.error('Error creating user profile:', error)
+    // Check if the user was created and signed in immediately
+    if (data.user && data.session) {
+      // User is signed in immediately, redirect to home
+      // Profile will be created by middleware/sign-in flow
+      setLoading(false)
+      router.replace('/')
+    } else {
+      // User needs to confirm email first or account created successfully
+      setLoading(false)
+      setError('Account created! Please check your email to confirm your account, then sign in.')
     }
-
-    setLoading(false)
-    router.replace('/')
   }
 
   return (

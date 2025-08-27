@@ -11,12 +11,23 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const profile = await prisma.userProfile.findUnique({
+    let profile = await prisma.userProfile.findUnique({
       where: { userId: user.id }
     })
 
+    // If profile doesn't exist, create it automatically
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      const passwordExpiresAt = new Date()
+      passwordExpiresAt.setDate(passwordExpiresAt.getDate() + 15)
+
+      profile = await prisma.userProfile.create({
+        data: {
+          userId: user.id,
+          email: user.email || '',
+          passwordExpiresAt,
+          passwordChangeRequired: false
+        }
+      })
     }
 
     const now = new Date()

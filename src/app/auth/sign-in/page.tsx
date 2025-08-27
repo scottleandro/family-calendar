@@ -28,22 +28,7 @@ function SignInContent() {
       return
     }
 
-    // Check/create user profile for existing users
-    try {
-      const profileResponse = await fetch('/api/auth/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      if (!profileResponse.ok) {
-        console.error('Failed to create/update user profile')
-      }
-    } catch (error) {
-      console.error('Error handling user profile:', error)
-    }
+    // Profile will be created automatically by the middleware/API calls when needed
 
     setLoading(false)
     router.replace(redirect)
