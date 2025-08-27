@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import type { CookieOptions } from '@supabase/ssr/dist/module/types'
 
-const PUBLIC_PATHS = ['/auth/sign-in', '/auth/sign-up', '/auth/change-password', '/_next', '/favicon.ico', '/api/health']
+const PUBLIC_PATHS = ['/auth/sign-in', '/auth/sign-up', '/auth/change-password', '/debug', '/_next', '/favicon.ico', '/api/health']
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl

@@ -1,9 +1,16 @@
 import CalendarView from '@/components/calendar/CalendarView'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  // In v1, we skip fetching session server-side and rely on middleware to guard
-  const userId = 'me'
-  return <CalendarView userId={userId} />
+  const supabase = createSupabaseServerClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    redirect('/auth/sign-in')
+  }
+
+  return <CalendarView userId={user.id} />
 }
