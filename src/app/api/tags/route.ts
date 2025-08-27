@@ -20,21 +20,20 @@ export async function GET() {
     // If no tags exist for this user, create the default set
     if (tags.length === 0) {
       const defaultTags = [
-        { id: 'work', name: 'Work', color: '#3b82f6' },
-        { id: 'personal', name: 'Personal', color: '#10b981' },
-        { id: 'family', name: 'Family', color: '#f59e0b' },
-        { id: 'health', name: 'Health', color: '#ef4444' },
-        { id: 'education', name: 'Education', color: '#8b5cf6' },
-        { id: 'travel', name: 'Travel', color: '#06b6d4' },
-        { id: 'social', name: 'Social', color: '#ec4899' },
-        { id: 'hobby', name: 'Hobby', color: '#84cc16' },
+        { name: 'Work', color: '#3b82f6' },
+        { name: 'Personal', color: '#10b981' },
+        { name: 'Family', color: '#f59e0b' },
+        { name: 'Health', color: '#ef4444' },
+        { name: 'Education', color: '#8b5cf6' },
+        { name: 'Travel', color: '#06b6d4' },
+        { name: 'Social', color: '#ec4899' },
+        { name: 'Hobby', color: '#84cc16' },
       ]
 
       // Create default tags for this user
       for (const tag of defaultTags) {
         await prisma.tag.create({
           data: {
-            id: tag.id,
             name: tag.name,
             color: tag.color,
             userId: user.id
