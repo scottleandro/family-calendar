@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model UserProfile {
+  id                    String    @id @default(uuid())
+  userId                String    @unique // Supabase user ID
+  email                 String    @unique
+  passwordExpiresAt     DateTime  @db.Timestamptz(6)
+  passwordChangeRequired Boolean  @default(false)
+  createdAt             DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([passwordExpiresAt])
+}
+
 model Event {
   id               String       @id @default(uuid())
   title            String

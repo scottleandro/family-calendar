@@ -19,10 +19,34 @@ function SignInContent() {
     setLoading(true); setError(null)
     const supabase = createSupabaseBrowserClient()
     if (!supabase) { setLoading(false); setError('Supabase is not configured'); return }
+    
     const { error } = await supabase.auth.signInWithPassword({ email, password })
+    
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+      return
+    }
+
+    // Check/create user profile for existing users
+    try {
+      const profileResponse = await fetch('/api/auth/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!profileResponse.ok) {
+        console.error('Failed to create/update user profile')
+      }
+    } catch (error) {
+      console.error('Error handling user profile:', error)
+    }
+
     setLoading(false)
-    if (error) setError(error.message)
-    else router.replace(redirect)
+    router.replace(redirect)
   }
 
   return (
