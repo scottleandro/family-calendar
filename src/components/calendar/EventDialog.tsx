@@ -162,35 +162,38 @@ export default function EventDialog({
 
   const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
   
-  const [customTags, setCustomTags] = useState([
-    { id: 'work', name: 'Work', color: '#3b82f6' },
-    { id: 'personal', name: 'Personal', color: '#10b981' },
-    { id: 'family', name: 'Family', color: '#f59e0b' },
-    { id: 'health', name: 'Health', color: '#ef4444' },
-    { id: 'education', name: 'Education', color: '#8b5cf6' },
-    { id: 'travel', name: 'Travel', color: '#06b6d4' },
-    { id: 'social', name: 'Social', color: '#ec4899' },
-    { id: 'hobby', name: 'Hobby', color: '#84cc16' },
-  ])
+  const [customTags, setCustomTags] = useState<{ id: string; name: string; color: string }[]>([])
   const [editingTagId, setEditingTagId] = useState<string | null>(null)
   const [editingTagName, setEditingTagName] = useState('')
+  const [tagsLoading, setTagsLoading] = useState(true)
 
-  // Load custom tag names from localStorage on mount
+  // Load tags from database on mount
   useEffect(() => {
-    const savedTags = localStorage.getItem('customTags')
-    if (savedTags) {
+    const loadTags = async () => {
       try {
-        setCustomTags(JSON.parse(savedTags))
-      } catch (e) {
-        console.error('Failed to load custom tags:', e)
+        const response = await fetch('/api/tags')
+        if (response.ok) {
+          const tags = await response.json()
+          setCustomTags(tags)
+        } else {
+          console.error('Failed to load tags:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Failed to load tags:', error)
+      } finally {
+        setTagsLoading(false)
       }
     }
-  }, [])
+    
+    if (open) {
+      loadTags()
+    }
+  }, [open])
 
-  // Save custom tag names to localStorage
-  const saveCustomTags = (tags: typeof customTags) => {
+  // Save custom tag names to database
+  const saveCustomTags = async (tags: typeof customTags) => {
     setCustomTags(tags)
-    localStorage.setItem('customTags', JSON.stringify(tags))
+    // Individual tag updates are handled by saveTagName function
   }
 
   const startEditingTag = (tag: typeof customTags[0]) => {
@@ -199,25 +202,34 @@ export default function EventDialog({
   }
 
   const saveTagName = async () => {
-    if (editingTagId && editingTagName.trim()) {
-      // Update locally first for immediate UI feedback
-      const updatedTags = customTags.map(tag => 
-        tag.id === editingTagId ? { ...tag, name: editingTagName.trim() } : tag
-      )
-      saveCustomTags(updatedTags)
-
-      // Sync with database
-      try {
-        await fetch(`/api/tags/${editingTagId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: editingTagName.trim() })
-        })
-      } catch (error) {
-        console.error('Failed to update tag in database:', error)
-        // Could show a toast notification here
-      }
+    if (!editingTagId || !editingTagName.trim()) {
+      setEditingTagId(null)
+      setEditingTagName('')
+      return
     }
+
+    try {
+      const response = await fetch(`/api/tags/${editingTagId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editingTagName.trim() })
+      })
+
+      if (response.ok) {
+        const updatedTag = await response.json()
+        const updatedTags = customTags.map(tag => 
+          tag.id === editingTagId ? updatedTag : tag
+        )
+        setCustomTags(updatedTags)
+      } else {
+        console.error('Failed to update tag:', response.statusText)
+        alert('Failed to update tag name')
+      }
+    } catch (error) {
+      console.error('Failed to update tag in database:', error)
+      alert('Failed to update tag name')
+    }
+
     setEditingTagId(null)
     setEditingTagName('')
   }
@@ -293,7 +305,15 @@ export default function EventDialog({
               </button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {customTags.map((tag) => (
+              {tagsLoading ? (
+                // Loading skeleton
+                Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="w-full p-2.5 sm:p-3 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse">
+                    <div className="h-4 bg-slate-300 dark:bg-slate-600 rounded"></div>
+                  </div>
+                ))
+              ) : (
+                customTags.map((tag) => (
                 <div key={tag.id} className="relative">
                   {editingTagId === tag.id ? (
                     <div className="flex flex-col gap-1">
@@ -353,7 +373,8 @@ export default function EventDialog({
                     </button>
                   )}
                 </div>
-              ))}
+                ))
+              )}
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
               Double-click any category to customize its label
