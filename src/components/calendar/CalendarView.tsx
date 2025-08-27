@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CalendarApi } from '@fullcalendar/core'
 import type { EditingEvent } from './types'
 import EventDialog from './EventDialog'
+import ProfileDialog from './ProfileDialog'
 
 export default function CalendarView({ userId }: { userId: string }) {
   const calRef = useRef<FullCalendar | null>(null)
@@ -16,6 +17,7 @@ export default function CalendarView({ userId }: { userId: string }) {
   const [editingEvent, setEditingEvent] = useState<EditingEvent | null>(null)
   const [initialRange, setInitialRange] = useState<{ start?: Date; end?: Date; allDay?: boolean }>({})
   const [isMobile, setIsMobile] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 768px)')
@@ -68,13 +70,20 @@ export default function CalendarView({ userId }: { userId: string }) {
             </div>
             <div className="flex gap-2">
               <button 
-                className="flex-1 group px-4 py-2.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-lg hover:bg-white/30 transition-all duration-300 flex items-center justify-center gap-2 text-white font-medium text-sm shadow-lg"
+                className="px-3 py-2.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-lg hover:bg-white/30 transition-all duration-300 flex items-center justify-center text-white shadow-lg"
+                onClick={() => setProfileOpen(true)}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+              <button 
+                className="px-3 py-2.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-lg hover:bg-white/30 transition-all duration-300 flex items-center justify-center text-white shadow-lg"
                 onClick={() => window.print()}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
-                Print
               </button>
               <button 
                 className="flex-1 group px-4 py-2.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-sm shadow-lg"
@@ -95,6 +104,15 @@ export default function CalendarView({ userId }: { userId: string }) {
               <p className="text-white/80 text-lg">Beautifully organize your family&apos;s life</p>
             </div>
             <div className="flex gap-4">
+              <button 
+                className="group px-4 py-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl hover:bg-white/30 transition-all duration-300 flex items-center gap-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-105"
+                onClick={() => setProfileOpen(true)}
+              >
+                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Profile
+              </button>
               <button 
                 className="group px-6 py-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl hover:bg-white/30 transition-all duration-300 flex items-center gap-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-105"
                 onClick={() => window.print()}
@@ -157,6 +175,7 @@ export default function CalendarView({ userId }: { userId: string }) {
           />
 
           <EventDialog open={open} onOpenChange={setOpen} initialRange={initialRange} editing={editingEvent} onSaved={refresh} userId={userId} />
+          <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} userId={userId} />
         </div>
       </div>
     </div>
