@@ -57,6 +57,14 @@ function SignInContent() {
         <input className="w-full rounded border px-3 py-2" placeholder="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} />
         <input className="w-full rounded border px-3 py-2" placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
         <button className="w-full rounded bg-black text-white py-2 disabled:opacity-50" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{' '}
+            <a href="/auth/sign-up" className="text-blue-600 hover:underline">
+              Create one here
+            </a>
+          </p>
+        </div>
       </form>
     </div>
   )
