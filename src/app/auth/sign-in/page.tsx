@@ -59,7 +59,7 @@ function SignInContent() {
         <button className="w-full rounded bg-black text-white py-2 disabled:opacity-50" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <a href="/auth/sign-up" className="text-blue-600 hover:underline">
               Create one here
             </a>
